@@ -9,10 +9,13 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.unit.Density
 import androidx.core.view.WindowCompat
 
 private val DarkColorScheme = darkColorScheme(
@@ -40,7 +43,6 @@ private val LightColorScheme = lightColorScheme(
 @Composable
 fun AaltoSoundTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
@@ -62,9 +64,27 @@ fun AaltoSoundTheme(
         }
     }
 
+
+    val fontScale = LocalDensity.current.fontScale
+    val displayMetrics = LocalContext.current.resources.displayMetrics
+    val widthPixels = displayMetrics.widthPixels
+
+    val designWidth = 375f
+    val density = widthPixels / designWidth
+
     MaterialTheme(
         colorScheme = colorScheme,
         typography = Typography,
-        content = content
+        content = {
+            CompositionLocalProvider( //屏幕适配
+                values = arrayOf(
+                    LocalDensity provides Density(
+                        density = density,
+                        fontScale = fontScale
+                    )
+                ),
+                content = content
+            )
+        }
     )
 }
